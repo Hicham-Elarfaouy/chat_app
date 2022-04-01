@@ -69,6 +69,7 @@ class HomeLayout extends StatelessWidget {
                       ),
                     ),
                   ),
+
               ],
             ),
           );
