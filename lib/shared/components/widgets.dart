@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 void navigateTo(context, widget) => Navigator.push(
       context,
@@ -45,23 +46,14 @@ Widget textField({
     );
 
 Widget defaultButton({
-  required GlobalKey<FormState> key,
   required String label,
+  required Function()? function,
 }) =>
     MaterialButton(
       color: Colors.blue,
       minWidth: double.infinity,
       height: 55,
-      onPressed: () {
-        if (key.currentState!.validate()) {
-          // cubit.checkUserRegister(
-          //   email: emailController.text,
-          //   name: nameController.text,
-          //   phone: phoneController.text,
-          //   password: passwordController.text,
-          // );
-        }
-      },
+      onPressed: function,
       child: Text(
         label.toUpperCase(),
         style: TextStyle(
@@ -72,12 +64,11 @@ Widget defaultButton({
       ),
     );
 
-/*
-enum toastState {succes,error,warning}
+enum toastState {success,error,warning}
 Color toastColor (toastState state){
   Color color;
   switch(state){
-    case toastState.succes:
+    case toastState.success:
       color = Colors.green;
       break;
     case toastState.error:
@@ -105,4 +96,3 @@ void showToast ({
     fontSize: 16.0,
   );
 }
-*/

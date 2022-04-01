@@ -1,10 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app7/layout/home_layout.dart';
 import 'package:flutter_app7/modules/login_module/cubit/login_cubit.dart';
 import 'package:flutter_app7/modules/login_module/cubit/login_states.dart';
 import 'package:flutter_app7/modules/register_module/register_screen.dart';
+import 'package:flutter_app7/shared/components/constants.dart';
 import 'package:flutter_app7/shared/components/widgets.dart';
+import 'package:flutter_app7/shared/network/local/cache_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -25,6 +29,16 @@ class _LoginScreenState extends State<LoginScreen> {
       create: (context) => LoginCubit(),
       child: BlocConsumer<LoginCubit, LoginStates>(
         listener: (context, state) {
+          if (state is LoginErrorState) {
+            showToast(msg: state.error, state: toastState.error);
+          } else if (state is LoginSuccessState) {
+            CacheHelper.putshared(key: 'uid', value: state.uid).then((value) {
+              uid = state.uid;
+              navigateToAndFinish(context, HomeLayout());
+            }).catchError((error) {
+              print(error.toString());
+            });
+          }
           /*if(state is stateLoginSuccess){
             if(state.userModel!.status == true){
               CacheHelper.putshared(key: 'isLogin', value: true).then((value) {
@@ -50,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
             body: SafeArea(
               child: Center(
                 child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Form(
@@ -111,7 +126,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 20,
                           ),
                           (state is! LoginLoadingState)
-                              ? defaultButton(key: formKey, label: 'login')
+                              ? defaultButton(
+                                  label: 'login',
+                                  function: () {
+                                    if (formKey.currentState!.validate()) {
+                                      cubit.userLogin(
+                                        email: emailController.text,
+                                        password: passwordController.text,
+                                      );
+                                    }
+                                  })
                               : Center(child: CircularProgressIndicator()),
                           SizedBox(
                             height: 10,
