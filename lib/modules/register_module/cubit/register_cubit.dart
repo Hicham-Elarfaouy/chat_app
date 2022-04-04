@@ -36,7 +36,15 @@ class RegisterCubit extends Cubit<RegisterStates> {
     required String email,
     required String uid,
   }) {
-    UserModel model = UserModel(uid, name, email, phone);
+    UserModel model = UserModel(
+      uid,
+      name,
+      email,
+      phone,
+      bio: 'Write bio ...',
+      image: 'https://cdn-icons.flaticon.com/png/512/3899/premium/3899618.png?token=exp=1649001359~hmac=2fb05b19e04f6f606a3130e14ecde0c9',
+      cover: 'https://cdn.pixabay.com/photo/2021/09/12/07/58/banner-6617550__340.png',
+    );
     FirebaseFirestore.instance
         .collection('users')
         .doc(uid)

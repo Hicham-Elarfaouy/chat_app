@@ -52,7 +52,7 @@ Widget defaultButton({
     MaterialButton(
       color: Colors.blue,
       minWidth: double.infinity,
-      height: 55,
+      height: 50,
       onPressed: function,
       child: Text(
         label.toUpperCase(),

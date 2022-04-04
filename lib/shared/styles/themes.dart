@@ -11,4 +11,11 @@ ThemeData lightTheme() => ThemeData(
       color: Colors.black,
     ),
   ),
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    selectedItemColor: Colors.black,
+    unselectedItemColor: Colors.black45,
+    selectedLabelStyle: TextStyle(
+      fontWeight: FontWeight.bold,
+    ),
+  )
 );
