@@ -33,12 +33,6 @@ class EditProfileScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             actions: [
-              IconButton(
-                onPressed: () {
-
-                },
-                icon: Icon(Icons.save_outlined),
-              )
             ],
           ),
           body: Column(
@@ -155,10 +149,10 @@ class EditProfileScreen extends StatelessWidget {
                         label: 'update',
                         function: () {
                           if(user!.name != nameController.text){
-                            cubit.updateName = nameController.text;
+                            cubit.updateName = nameController.text.split(" ").map((str) => str[0].toUpperCase()+str.substring(1).toLowerCase()).join(" ");
                           }
                           if(user.bio != bioController.text){
-                            cubit.updateBio = bioController.text;
+                            cubit.updateBio = bioController.text.split(" ").map((str) => str[0].toUpperCase()+str.substring(1).toLowerCase()).join(" ");
                           }
                           formKey.currentState!.validate();
                           cubit.updateUserProfile();

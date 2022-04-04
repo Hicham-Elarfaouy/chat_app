@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app7/layout/cubit/app_states.dart';
+import 'package:flutter_app7/models/post_model.dart';
 import 'package:flutter_app7/models/user_model.dart';
 import 'package:flutter_app7/modules/chat_module/chat_screen.dart';
 import 'package:flutter_app7/modules/home_module/home_screen.dart';
@@ -71,6 +72,7 @@ class appCubit extends Cubit<appStates> {
   String? updateBio;
   String? urlProfile;
   String? urlCover;
+
   void updateUserProfile() async {
     emit(appUpdateProfileLoading());
     urlProfile = null;
@@ -85,24 +87,22 @@ class appCubit extends Cubit<appStates> {
 
     print(urlProfile);
     print(urlCover);
-    if (urlProfile != null || urlCover != null || updateName != null || updateBio != null) {
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .update({
-        'image' : urlProfile ?? userModel!.image,
-        'cover' : urlCover ?? userModel!.cover,
-        'name' : updateName ?? userModel!.name,
-        'bio' : updateBio ?? userModel!.bio,
-      })
-          .then((value) {
-            updateName = null;
-            updateBio = null;
-            getUserData();
-      })
-          .catchError((error) {
-            print(error);
-            emit(appUpdateProfileError());
+    if (urlProfile != null ||
+        urlCover != null ||
+        updateName != null ||
+        updateBio != null) {
+      FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'image': urlProfile ?? userModel!.image,
+        'cover': urlCover ?? userModel!.cover,
+        'name': updateName ?? userModel!.name,
+        'bio': updateBio ?? userModel!.bio,
+      }).then((value) {
+        updateName = null;
+        updateBio = null;
+        getUserData();
+      }).catchError((error) {
+        print(error);
+        emit(appUpdateProfileError());
       });
     }
     emit(appUpdateProfileSuccess());
@@ -115,7 +115,7 @@ class appCubit extends Cubit<appStates> {
         .child('users/${Uri.file(ProfileImage!.path).pathSegments.last}')
         .putFile(File(ProfileImage!.path))
         .then((value) async {
-          url = await value.ref.getDownloadURL();
+      url = await value.ref.getDownloadURL();
     }).catchError((error) {
       print(error.toString());
     });
@@ -129,10 +129,76 @@ class appCubit extends Cubit<appStates> {
         .child('users/${Uri.file(CoverImage!.path).pathSegments.last}')
         .putFile(File(CoverImage!.path))
         .then((value) async {
-          url = await value.ref.getDownloadURL();
+      url = await value.ref.getDownloadURL();
     }).catchError((error) {
       print(error.toString());
     });
     return url;
+  }
+
+  XFile? PostImage;
+
+  Future<void> PickPostImage() async {
+    final PickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (PickedFile != null) {
+      PostImage = XFile(PickedFile.path);
+      emit(appPickedPostSuccess());
+    }
+  }
+
+  Future<String> uploadPostImage() async {
+    var url;
+    await firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child('posts/${Uri.file(PostImage!.path).pathSegments.last}')
+        .putFile(File(PostImage!.path))
+        .then((value) async {
+      url = await value.ref.getDownloadURL();
+    }).catchError((error) {
+      print(error.toString());
+    });
+    return url;
+  }
+  void removePostImage(){
+    PostImage = null;
+    emit(appRemovePostSuccess());
+  }
+
+  String? urlPost;
+
+  void uploadPost({
+    required String date,
+    required String text,
+  }) async {
+    emit(appUploadPostLoading());
+    urlPost = null;
+    print(PostImage);
+
+    if (PostImage != null) {
+      urlPost = await uploadPostImage();
+    }
+
+    print(urlPost);
+
+    PostModel model = PostModel(
+      userModel?.uid,
+      userModel?.image,
+      userModel?.name,
+      date,
+      text,
+      likes: 0,
+      comments: 0,
+      image: urlPost,
+    );
+
+    FirebaseFirestore.instance
+        .collection('posts')
+        .add(model.toMap())
+        .then((value) {
+      emit(appUploadPostSuccess());
+    }).catchError((error) {
+      print(error);
+      emit(appUpdateProfileError());
+    });
   }
 }

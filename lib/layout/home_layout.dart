@@ -55,7 +55,15 @@ class HomeLayout extends StatelessWidget {
                     elevation: 1,
                     mini: true,
                     onPressed: () {
-                      navigateTo(context, AddPostScreen());
+                      cubit.PostImage = null;
+                      Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (newcontext) => BlocProvider.value(
+                                value: BlocProvider.of<appCubit>(context),
+                                child: AddPostScreen(),
+                              )
+                          )
+                      );
                     },
                     backgroundColor: Colors.blue,
                     child: Icon(

@@ -34,6 +34,13 @@ class appPickedCoverSuccess extends appStates {
 
 }
 
+class appPickedPostSuccess extends appStates {
+
+}
+class appRemovePostSuccess extends appStates {
+
+}
+
 
 class appUpdateProfileLoading extends appStates {
 
@@ -44,5 +51,17 @@ class appUpdateProfileSuccess extends appStates {
 }
 
 class appUpdateProfileError extends appStates {
+
+}
+
+class appUploadPostLoading extends appStates {
+
+}
+
+class appUploadPostSuccess extends appStates {
+
+}
+
+class appUploadPostError extends appStates {
 
 }

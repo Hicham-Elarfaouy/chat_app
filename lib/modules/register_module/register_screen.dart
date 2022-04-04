@@ -151,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     if (formKey.currentState!.validate()) {
                                       cubit.userRegister(
                                         email: emailController.text,
-                                        name: nameController.text,
+                                        name: nameController.text.split(" ").map((str) => str[0].toUpperCase()+str.substring(1).toLowerCase()).join(" "),
                                         phone: phoneController.text,
                                         password: passwordController.text,
                                       );
