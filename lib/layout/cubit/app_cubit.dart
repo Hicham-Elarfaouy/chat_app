@@ -35,6 +35,66 @@ class appCubit extends Cubit<appStates> {
     });
   }
 
+  List<PostModel> listPosts = [];
+  List<String> listIdPosts = [];
+  List<List<String>> listLiked = [];
+  List<String> listLikedPost = [];
+
+  void getPosts() {
+    FirebaseFirestore.instance.collection('posts').get().then((value) {
+      value.docs.forEach((element) async {
+        await element.reference.collection('Likes').get().then((value) {
+          listLikedPost = [];
+          value.docs.forEach((element) {
+            listLikedPost.add(element.id);
+          });
+          listLiked.add(listLikedPost);
+        });
+        listIdPosts.add(element.id);
+        listPosts.add(PostModel.fromJson(element.data()));
+      });
+      emit(appgetPostsSuccess());
+    }).catchError((error) {
+      print(error);
+      emit(appgetPostsError());
+    });
+  }
+
+  void likePost(idPost, index, bool isLike) {
+    if (isLike) {
+      listLiked[index].remove(uid!);
+      emit(applikePostSuccess());
+      FirebaseFirestore.instance
+          .collection('posts')
+          .doc(idPost)
+          .collection('Likes')
+          .doc(uid)
+          .delete()
+          .then((value) {
+        emit(applikePostSuccess());
+      })
+          .catchError((error) {
+        emit(applikePostError());
+      });
+    } else {
+      listLiked[index].add(uid!);
+      emit(applikePostSuccess());
+      FirebaseFirestore.instance
+          .collection('posts')
+          .doc(idPost)
+          .collection('Likes')
+          .doc(uid)
+          .set({
+        'like': true,
+      }).then((value) {
+        emit(applikePostSuccess());
+      }).catchError((error) {
+        print(error);
+        emit(applikePostError());
+      });
+    }
+  }
+
   int currentIndex = 0;
   List<Widget> listScreen = [
     HomeScreen(),
@@ -159,7 +219,8 @@ class appCubit extends Cubit<appStates> {
     });
     return url;
   }
-  void removePostImage(){
+
+  void removePostImage() {
     PostImage = null;
     emit(appRemovePostSuccess());
   }

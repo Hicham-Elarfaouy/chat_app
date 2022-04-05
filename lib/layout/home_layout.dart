@@ -17,13 +17,13 @@ class HomeLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => appCubit()..getUserData(),
+      create: (context) => appCubit()..getUserData()..getPosts(),
       child: BlocConsumer<appCubit, appStates>(
         listener: (context, state) {},
         builder: (context, state) {
           appCubit cubit = appCubit.get(context);
 
-          return cubit.userModel != null
+          return cubit.userModel != null && cubit.listPosts.isNotEmpty
               ? Scaffold(
                   appBar: AppBar(
                     title: Text(
