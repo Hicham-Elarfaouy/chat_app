@@ -23,7 +23,7 @@ class HomeLayout extends StatelessWidget {
         builder: (context, state) {
           appCubit cubit = appCubit.get(context);
 
-          return cubit.userModel != null && cubit.listPosts.isNotEmpty
+          return cubit.userModel != null
               ? Scaffold(
                   appBar: AppBar(
                     title: Text(

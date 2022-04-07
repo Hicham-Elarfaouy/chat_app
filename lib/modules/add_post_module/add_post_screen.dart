@@ -14,7 +14,11 @@ class AddPostScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<appCubit, appStates>(
-      listener: (context, state) {},
+      listener: (context, state) {
+        if(state is appUploadPostSuccess){
+          Navigator.pop(context);
+        }
+      },
       builder: (context, state) {
         appCubit cubit = appCubit.get(context);
         UserModel? user = cubit.userModel;
@@ -40,6 +44,7 @@ class AddPostScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
+              TextButton(onPressed: (){Navigator.pop(context);}, child: Text('gg'))
             ],
           ),
           body: Padding(

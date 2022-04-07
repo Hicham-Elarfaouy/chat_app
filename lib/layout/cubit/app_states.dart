@@ -32,6 +32,24 @@ class appgetPostsError extends appStates {
 }
 
 
+class appgetCommentsSuccess extends appStates {
+
+}
+
+class appgetCommentsError extends appStates {
+
+}
+
+
+class appAddCommentSuccess extends appStates {
+
+}
+
+class appAddCommentError extends appStates {
+
+}
+
+
 
 class applikePostSuccess extends appStates {
 

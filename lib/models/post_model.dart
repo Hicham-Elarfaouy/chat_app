@@ -5,7 +5,7 @@ class PostModel{
   String? date;
   String? text;
   String? image;
-  int? likes;
+  List? likes;
   int? comments;
 
   PostModel (this.uid,this.profile,this.name,this.date,this.text,{this.image,this.likes,this.comments});
@@ -18,7 +18,7 @@ class PostModel{
     text = json?['text'];
     likes = json?['likes'];
     image = json?['image'];
-    comments = json?['comments'];
+    comments = json?['comments'].round();
   }
 
   Map<String, dynamic> toMap() {
@@ -31,6 +31,31 @@ class PostModel{
       'likes': likes,
       'image': image,
       'comments': comments,
+    };
+  }
+}
+
+class CommentModel{
+  String? profile;
+  String? name;
+  String? date;
+  String? text;
+
+  CommentModel(this.profile,this.name,this.date,this.text);
+
+  CommentModel.fromJson(Map<String, dynamic>? json){
+    profile = json?['profile'];
+    name = json?['name'];
+    date = json?['date'];
+    text = json?['text'];
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'profile': profile,
+      'name': name,
+      'date': date,
+      'text': text,
     };
   }
 }

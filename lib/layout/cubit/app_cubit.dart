@@ -37,19 +37,40 @@ class appCubit extends Cubit<appStates> {
 
   List<PostModel> listPosts = [];
   List<String> listIdPosts = [];
-  List<List<String>> listLiked = [];
-  List<String> listLikedPost = [];
+
+  /*List<List<String>> listLiked = [];
+  List<String> listLikedPost = [];*/
+  /*List<List<Map<String, dynamic>>> listPC = [];
+  List<Map<String, dynamic>> listC = [];
+  CommentModel com = CommentModel();
+  Map<String, dynamic> ff = {};*/
 
   void getPosts() {
-    FirebaseFirestore.instance.collection('posts').get().then((value) {
+    FirebaseFirestore.instance.collection('posts').get().then((value) async {
+      listPosts = [];
+      listIdPosts = [];
       value.docs.forEach((element) async {
-        await element.reference.collection('Likes').get().then((value) {
+        /*await element.reference.collection('Comments').get().then((value) {
+          listC = [];
+          value.docs.forEach((element) {
+            element.reference.get().then((value) {
+              value.data()?.forEach((key, value) {
+                ff['$key'] = value;
+              });
+              print('${ff['text']}jjjjjjjjjj');
+              listC.add(ff);
+            });
+            listPC.add(listC);
+          });
+
+        });*/
+        /*await element.reference.collection('Likes').get().then((value) {
           listLikedPost = [];
           value.docs.forEach((element) {
             listLikedPost.add(element.id);
           });
           listLiked.add(listLikedPost);
-        });
+        });*/
         listIdPosts.add(element.id);
         listPosts.add(PostModel.fromJson(element.data()));
       });
@@ -60,33 +81,66 @@ class appCubit extends Cubit<appStates> {
     });
   }
 
-  void likePost(idPost, index, bool isLike) {
+  List<CommentModel> listComments = [];
+
+  void getComments(idPost) {
+    FirebaseFirestore.instance
+        .collection('comment')
+        .doc(idPost)
+        .collection('comments')
+        .get()
+        .then((value) async {
+      listComments = [];
+      value.docs.forEach((element) async {
+        listComments.add(CommentModel.fromJson(element.data()));
+      });
+      emit(appgetCommentsSuccess());
+    }).catchError((error) {
+      print(error);
+      emit(appgetCommentsError());
+    });
+  }
+
+  void addComment(idPost, date, text) {
+    CommentModel model = CommentModel(userModel?.image, userModel?.name, date, text);
+    FirebaseFirestore.instance
+        .collection('comment')
+        .doc(idPost)
+        .collection('comments')
+        .add(model.toMap())
+        .then((value) {
+          getComments(idPost);
+          emit(appAddCommentSuccess());
+          getPosts();
+          FirebaseFirestore.instance.collection('posts').doc(idPost).update({
+            'comments': FieldValue.increment(1),
+          });
+    })
+        .catchError((error) {
+          print(error);
+          emit(appAddCommentError());
+    });
+  }
+
+  void likePost(idPost, PostModel model, bool isLike) {
     if (isLike) {
-      listLiked[index].remove(uid!);
+      model.likes?.remove(uid);
       emit(applikePostSuccess());
-      FirebaseFirestore.instance
-          .collection('posts')
-          .doc(idPost)
-          .collection('Likes')
-          .doc(uid)
-          .delete()
-          .then((value) {
+      FirebaseFirestore.instance.collection('posts').doc(idPost).update({
+        'likes': FieldValue.arrayRemove([uid]),
+      }).then((value) {
+        getPosts();
         emit(applikePostSuccess());
-      })
-          .catchError((error) {
+      }).catchError((error) {
         emit(applikePostError());
       });
     } else {
-      listLiked[index].add(uid!);
+      model.likes?.add(uid);
       emit(applikePostSuccess());
-      FirebaseFirestore.instance
-          .collection('posts')
-          .doc(idPost)
-          .collection('Likes')
-          .doc(uid)
-          .set({
-        'like': true,
+      FirebaseFirestore.instance.collection('posts').doc(idPost).update({
+        'likes': FieldValue.arrayUnion([uid]),
       }).then((value) {
+        getPosts();
         emit(applikePostSuccess());
       }).catchError((error) {
         print(error);
@@ -247,7 +301,7 @@ class appCubit extends Cubit<appStates> {
       userModel?.name,
       date,
       text,
-      likes: 0,
+      likes: [],
       comments: 0,
       image: urlPost,
     );
@@ -257,6 +311,7 @@ class appCubit extends Cubit<appStates> {
         .add(model.toMap())
         .then((value) {
       emit(appUploadPostSuccess());
+      getPosts();
     }).catchError((error) {
       print(error);
       emit(appUpdateProfileError());
