@@ -44,7 +44,6 @@ class AddPostScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
-              TextButton(onPressed: (){Navigator.pop(context);}, child: Text('gg'))
             ],
           ),
           body: Padding(

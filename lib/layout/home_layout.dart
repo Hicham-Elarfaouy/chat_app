@@ -17,7 +17,10 @@ class HomeLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => appCubit()..getUserData()..getPosts(),
+      create: (context) => appCubit()
+        ..getUserData()
+        ..getPosts()
+        ..getUsers(),
       child: BlocConsumer<appCubit, appStates>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -45,7 +48,9 @@ class HomeLayout extends StatelessWidget {
                             CacheHelper.removeshared(key: 'uid');
                             uid = null;
                             navigateToAndFinish(context, LoginScreen());
-                            showToast(msg: 'تم تسجيل الخروج', state: toastState.success);
+                            showToast(
+                                msg: 'تم تسجيل الخروج',
+                                state: toastState.success);
                           },
                           icon: Icon(IconBroken.Logout)),
                     ],
@@ -53,49 +58,84 @@ class HomeLayout extends StatelessWidget {
                   body: cubit.listScreen[cubit.currentIndex],
                   floatingActionButton: FloatingActionButton(
                     elevation: 1,
-                    mini: true,
                     onPressed: () {
                       cubit.PostImage = null;
-                      Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (newcontext) => BlocProvider.value(
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (newcontext) => BlocProvider.value(
                                 value: BlocProvider.of<appCubit>(context),
                                 child: AddPostScreen(),
-                              )
-                          )
-                      );
+                              )));
                     },
                     backgroundColor: Colors.blue,
                     child: Icon(
                       IconBroken.Plus,
+                      size: 30,
                     ),
                   ),
                   floatingActionButtonLocation:
                       FloatingActionButtonLocation.centerDocked,
-                  bottomNavigationBar: BottomNavigationBar(
-                    currentIndex: cubit.currentIndex,
-                    onTap: (index) {
-                      cubit.ChangeBottomNav(index);
-                    },
-                    items: [
-                      BottomNavigationBarItem(
-                        icon: Icon(IconBroken.Home),
-                        label: 'Home',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(IconBroken.Chat),
-                        label: 'Chats',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(IconBroken.User),
-                        label: 'Users',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(IconBroken.Setting),
-                        label: 'Settings',
-                      ),
-                    ],
+                  bottomNavigationBar: BottomAppBar(
+                    // color: Colors.red,
+                    elevation: 40,
+                    shape: CircularNotchedRectangle(),
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            cubit.ChangeBottomNav(0);
+                          },
+                          icon: Icon(IconBroken.Home),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            cubit.ChangeBottomNav(1);
+                          },
+                          icon: Icon(IconBroken.Chat),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            cubit.ChangeBottomNav(2);
+                          },
+                          icon: Icon(IconBroken.User1),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            cubit.ChangeBottomNav(3);
+                          },
+                          icon: Icon(IconBroken.Setting),
+                        ),
+                      ],
+                    ),
                   ),
+                  /*BottomNavigationBar(
+                currentIndex: cubit.currentIndex,
+                onTap: (index) {
+                  cubit.ChangeBottomNav(index);
+                },
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Icon(IconBroken.Home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(IconBroken.Chat),
+                    label: 'Chats',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(IconBroken.User),
+                    label: 'Users',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(IconBroken.Setting),
+                    label: 'Settings',
+                  ),
+                ],
+              )*/
                 )
               : Scaffold(
                   body: Center(child: CircularProgressIndicator()),

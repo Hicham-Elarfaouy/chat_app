@@ -21,7 +21,13 @@ class appErrorState extends appStates {
   appErrorState(this.error);
 }
 
+class appgetUsersSuccess extends appStates {
 
+}
+
+class appgetUsersError extends appStates {
+
+}
 
 class appgetPostsSuccess extends appStates {
 
@@ -111,5 +117,18 @@ class appUploadPostSuccess extends appStates {
 }
 
 class appUploadPostError extends appStates {
+
+}
+
+
+class appSendMessageSuccess extends appStates {
+
+}
+
+class appSendMessageError extends appStates {
+
+}
+
+class appgetMessagesSuccess extends appStates {
 
 }

@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app7/layout/cubit/app_states.dart';
+import 'package:flutter_app7/models/message_model.dart';
 import 'package:flutter_app7/models/post_model.dart';
 import 'package:flutter_app7/models/user_model.dart';
 import 'package:flutter_app7/modules/chat_module/chat_screen.dart';
@@ -35,6 +36,22 @@ class appCubit extends Cubit<appStates> {
     });
   }
 
+  List<UserModel> users = [];
+
+  void getUsers() {
+    FirebaseFirestore.instance.collection('users').get().then((value) {
+      value.docs.forEach((element) {
+        if (element.get('uid') != uid)
+          users.add(UserModel.fromJson(element.data()));
+      });
+      print('${users.length} users');
+      emit(appgetUsersSuccess());
+    }).catchError((error) {
+      print(error);
+      emit(appgetUsersError());
+    });
+  }
+
   List<PostModel> listPosts = [];
   List<String> listIdPosts = [];
 
@@ -46,7 +63,11 @@ class appCubit extends Cubit<appStates> {
   Map<String, dynamic> ff = {};*/
 
   void getPosts() {
-    FirebaseFirestore.instance.collection('posts').get().then((value) async {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .orderBy('date', descending: true)
+        .get()
+        .then((value) async {
       listPosts = [];
       listIdPosts = [];
       value.docs.forEach((element) async {
@@ -88,6 +109,7 @@ class appCubit extends Cubit<appStates> {
         .collection('comment')
         .doc(idPost)
         .collection('comments')
+        .orderBy('date', descending: true)
         .get()
         .then((value) async {
       listComments = [];
@@ -102,23 +124,23 @@ class appCubit extends Cubit<appStates> {
   }
 
   void addComment(idPost, date, text) {
-    CommentModel model = CommentModel(userModel?.image, userModel?.name, date, text);
+    CommentModel model =
+        CommentModel(userModel?.image, userModel?.name, date, text);
     FirebaseFirestore.instance
         .collection('comment')
         .doc(idPost)
         .collection('comments')
         .add(model.toMap())
         .then((value) {
-          getComments(idPost);
-          emit(appAddCommentSuccess());
-          getPosts();
-          FirebaseFirestore.instance.collection('posts').doc(idPost).update({
-            'comments': FieldValue.increment(1),
-          });
-    })
-        .catchError((error) {
-          print(error);
-          emit(appAddCommentError());
+      getComments(idPost);
+      emit(appAddCommentSuccess());
+      getPosts();
+      FirebaseFirestore.instance.collection('posts').doc(idPost).update({
+        'comments': FieldValue.increment(1),
+      });
+    }).catchError((error) {
+      print(error);
+      emit(appAddCommentError());
     });
   }
 
@@ -315,6 +337,56 @@ class appCubit extends Cubit<appStates> {
     }).catchError((error) {
       print(error);
       emit(appUpdateProfileError());
+    });
+  }
+
+  List<MessageModel> listMessages = [];
+
+  void sendMessage(idReceiver, date, message) {
+    MessageModel model = MessageModel(idReceiver, uid, date, message);
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('chats')
+        .doc(idReceiver)
+        .collection('messages')
+        .add(model.toMap())
+        .then((value) {
+      emit(appSendMessageSuccess());
+    }).catchError((error) {
+      emit(appSendMessageError());
+    });
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(idReceiver)
+        .collection('chats')
+        .doc(uid)
+        .collection('messages')
+        .add(model.toMap())
+        .then((value) {
+      emit(appSendMessageSuccess());
+    }).catchError((error) {
+      emit(appSendMessageError());
+    });
+  }
+
+  void getMessages(idReceiver) {
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('chats')
+        .doc(idReceiver)
+        .collection('messages')
+        .orderBy('date')
+        .snapshots()
+        .listen((event) {
+      listMessages = [];
+      event.docs.forEach((element) {
+        listMessages.add(MessageModel.fromJson(element.data()));
+      });
+      emit(appgetMessagesSuccess());
     });
   }
 }
